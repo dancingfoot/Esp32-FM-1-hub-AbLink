@@ -1,0 +1,6 @@
+{
+  "name": "ESP32-S3 FM1 & Ableton Link Workbench",
+  "description": "Integration architecture workbench and Web Flasher for combining M-VAVE FM1 USB Synth Cartridge and Ableton Link on ESP32-S3.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
