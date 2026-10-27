@@ -1,0 +1,16 @@
+idf_component_register(
+    SRCS 
+        "main.cpp"
+        "audio_mixer.cpp"
+        "usb_hub_manager.cpp"
+    INCLUDE_DIRS 
+        "."
+    REQUIRES 
+        esp_wifi 
+        nvs_flash 
+        esp_timer 
+        driver 
+        esp_ringbuf
+        usb 
+        esp_abl_link
+)

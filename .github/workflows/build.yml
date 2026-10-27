@@ -13,22 +13,34 @@ jobs:
     name: Build ESP-IDF Firmware (ESP32-S3)
     runs-on: ubuntu-latest
     container:
-      # Official Espressif Docker image with full ESP-IDF v5.3 toolchain, Python, and CMake
+      # Official Espressif Docker container with pre-installed ESP-IDF v5.3 toolchain
       image: espressif/idf:release-v5.3
 
     steps:
-      - name: Checkout repository & submodules
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Setup Git HTTPS Rewrites & Submodules
+        run: |
+          # Rewrite SSH git URLs to HTTPS so submodules like Ableton/link clone anonymously
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          
+          # Clone esp_abl_link component if not present as a submodule
+          if [ ! -d "components/esp_abl_link" ]; then
+            echo "Cloning esp_abl_link component..."
+            mkdir -p components
+            git clone --recurse-submodules --depth 1 https://github.com/docwilco/esp_abl_link.git components/esp_abl_link
+          fi
 
       - name: Build ESP32-S3 Firmware
         run: |
           . $IDF_PATH/export.sh
           # Set target chip to ESP32-S3
           idf.py set-target esp32s3
-          # Compile the application, bootloader, and partition table
+          # Compile the firmware
           idf.py build
 
       - name: Upload firmware artifacts
@@ -46,7 +58,6 @@ jobs:
       - name: Package merged binary for Web Flashing
         run: |
           . $IDF_PATH/export.sh
-          # Create a single merged binary at 0x0 for simple 1-click web flashers
           esptool.py --chip esp32s3 merge_bin -o build/merged-flash.bin @build/flash_args || true
 
       - name: Upload merged binary artifact
