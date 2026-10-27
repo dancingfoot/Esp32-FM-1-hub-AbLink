@@ -1,0 +1,58 @@
+name: Build ESP32-S3 Firmware (Esp32-FM-1-hub-AbLink)
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ESP-IDF Firmware (ESP32-S3)
+    runs-on: ubuntu-latest
+    container:
+      # Official Espressif Docker image with full ESP-IDF v5.3 toolchain, Python, and CMake
+      image: espressif/idf:release-v5.3
+
+    steps:
+      - name: Checkout repository & submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Build ESP32-S3 Firmware
+        run: |
+          . $IDF_PATH/export.sh
+          # Set target chip to ESP32-S3
+          idf.py set-target esp32s3
+          # Compile the application, bootloader, and partition table
+          idf.py build
+
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Esp32-FM-1-hub-AbLink-firmware
+          path: |
+            build/*.bin
+            build/*.elf
+            build/bootloader/*.bin
+            build/partition_table/*.bin
+            build/flasher_args.json
+          if-no-files-found: error
+
+      - name: Package merged binary for Web Flashing
+        run: |
+          . $IDF_PATH/export.sh
+          # Create a single merged binary at 0x0 for simple 1-click web flashers
+          esptool.py --chip esp32s3 merge_bin -o build/merged-flash.bin @build/flash_args || true
+
+      - name: Upload merged binary artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Esp32-FM-1-hub-AbLink-merged
+          path: build/merged-flash.bin
+          if-no-files-found: warn

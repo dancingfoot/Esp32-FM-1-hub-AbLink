@@ -50,13 +50,14 @@ export function CodeGenerator() {
       description: 'Custom partition table accommodating factory app binary (2.5MB) and SPIFFS web storage.',
     },
     githubActions: {
-      name: '.github/workflows/build-esp32.yml',
+      name: '.github/workflows/build.yml',
       lang: 'yaml',
-      content: `name: Build ESP32-S3 Firmware
+      content: `name: Build ESP32-S3 Firmware (Esp32-FM-1-hub-AbLink)
 
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -66,24 +67,26 @@ jobs:
     name: Build ESP-IDF Firmware (ESP32-S3)
     runs-on: ubuntu-latest
     container:
+      # Official Espressif Docker container with pre-installed toolchain
       image: espressif/idf:release-v5.3
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository & submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
-      - name: Set target to ESP32-S3 and Build
+      - name: Build ESP32-S3 Firmware
         run: |
           . $IDF_PATH/export.sh
           idf.py set-target esp32s3
           idf.py build
 
-      - name: Upload compiled binary artifacts
+      - name: Upload firmware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: esp32s3-fm1-link-firmware
+          name: Esp32-FM-1-hub-AbLink-firmware
           path: |
             build/*.bin
             build/*.elf
@@ -91,8 +94,21 @@ jobs:
             build/partition_table/*.bin
             build/flasher_args.json
           if-no-files-found: error
+
+      - name: Package merged binary for Web Flashing
+        run: |
+          . $IDF_PATH/export.sh
+          esptool.py --chip esp32s3 merge_bin -o build/merged-flash.bin @build/flash_args || true
+
+      - name: Upload merged binary artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Esp32-FM-1-hub-AbLink-merged
+          path: build/merged-flash.bin
+          if-no-files-found: warn
 `,
-      description: 'Automated GitHub Actions CI runner compiling the project with espressif/idf Docker container.',
+      description: 'GitHub Actions workflow for dancingfoot/Esp32-FM-1-hub-AbLink compiling firmware and packaging artifacts.',
     },
   };
 

@@ -26,19 +26,25 @@ export default function App() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span>Headless ESP32-S3</span>
+              <a 
+                href="https://github.com/dancingfoot/Esp32-FM-1-hub-AbLink" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="text-cyan-400 font-mono font-semibold hover:underline inline-flex items-center gap-1"
+              >
+                dancingfoot/Esp32-FM-1-hub-AbLink
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </a>
               <span aria-hidden="true">·</span>
-              <span>4-Port USB Hub Host</span>
+              <span>ESP32-S3 Headless Hub</span>
               <span aria-hidden="true">·</span>
-              <span>Ableton Link Wi-Fi (ETH01 Ready)</span>
-              <span aria-hidden="true">·</span>
-              <span>Core 1 DSP Mixer</span>
+              <span>ESP-IDF v5.3 CI</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-              FM1 Multi-Synthesizer & Ableton Link Hub
+              Esp32-FM-1-hub-AbLink Workbench
             </h1>
             <p className="text-sm text-slate-400 max-w-3xl">
-              Web control console, real-time audio mixer, and USB flasher for multi-device M-VAVE FM-1 setups synced wirelessly over Ableton Link.
+              Official architecture workbench, Web Flasher, and real-time audio mixer for the <span className="text-white font-semibold">dancingfoot/Esp32-FM-1-hub-AbLink</span> project.
             </p>
           </div>
 
